@@ -1,6 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 
 /*
   Generated class for the DrupalApiProvider provider.
@@ -34,18 +33,33 @@ export class DrupalApiProvider {
         reqOpts.params = reqOpts.params.set(k, params[k]);
       }
     }
-    console.log('DrupalApiProvider::get(): HTTP GET ');
+
+    console.log('DrupalApiProvider::get(): HTTP GET ' + this.url + '/' + endpoint);
     return this.http.get(this.url + '/' + endpoint)
                     .toPromise()
                     .then(
                       data => {
                           let count = (<Array<string>>data).length;
                           for (var i = 0; i < count; i++) {
-                            console.log(data[i])
+                            //console.log(data[i])
                             this.myNodeList.push(data[i]);
                           }
                           return this.myNodeList;
                         }
+                    )
+                    .catch(this.handleError)
+  }
+
+  getNode(endpoint: string, params?: any, reqOpts?: any) {
+
+    console.log('DrupalApiProvider::getNode(): HTTP GET ' + this.url + '/' + endpoint);
+    return this.http.get(this.url + '/' + endpoint)
+                    .toPromise()
+                    .then(
+                      data => {
+                        console.log(data);
+                        return data;
+                      }
                     )
                     .catch(this.handleError)
   }

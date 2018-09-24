@@ -3,7 +3,8 @@ import { IonicPage, NavController, ModalController } from 'ionic-angular';
 import { Item } from '../../models/item';
 import { Items } from '../../providers';
 import { Node } from '../../models/node';
-import { Nodes } from '../../providers';
+import { DrupalApiProvider } from '../../providers/drupal-api/drupal-api';
+
 
 /**
  * Generated class for the HomePage page.
@@ -18,22 +19,48 @@ import { Nodes } from '../../providers';
   templateUrl: 'home.html',
 })
 export class HomePage implements OnInit {
-  currentItems: Item[];
   currentNodes: Node[] = [];
+  morePagesAvailable: boolean = false;
 
-  constructor(public navCtrl: NavController, 
-    public nodes: Nodes, public items: Items, 
-    public modalCtrl: ModalController) {
+  constructor(
+    public navCtrl: NavController, 
+    public dp: DrupalApiProvider, 
+    public items: Items, 
+    public modalCtrl: ModalController)
+  {
     console.log('HomePage::constructor() data query...');
-    this.currentItems = this.items.query();
-    console.log('HomePage::constructor(): load ' + this.currentItems.length + ' items.')
-    //this.currentNodes = this.nodes.getNodeList();
-    //console.log('HomePage::constructor(): load ' + this.currentNodes.length + ' nodes.')
+    //this.currentItems = this.items.query();
+    //console.log('HomePage::constructor(): load ' + this.currentItems.length + ' items.')
   }
 
   ngOnInit(): void {
-    this.currentNodes = this.nodes.getNodeList();
+    this.dp.get('node',null,null).then(
+      nodes => this.currentNodes = nodes
+      );
     console.log('HomePage::ngOnInit(): load ' + this.currentNodes.length + ' nodes.')
+  }
+
+  doInfinite(infiniteScroll) {
+    let page = (Math.ceil(this.currentNodes.length/20)) + 1;
+    let loading = true;
+
+    this.dp.get('node?page=' + page, null, null).then(
+      nodes => {
+          for(let node of nodes) {
+            if(!loading){
+              infiniteScroll.complete();
+            }
+            //console.log(node);
+            this.currentNodes.push(node);
+            loading = false;
+          }
+        }
+      ).catch(
+        err => {
+          this.morePagesAvailable = false;
+          console.error(err);
+        }
+      );
   }
 
   ionViewDidLoad() {
@@ -41,6 +68,10 @@ export class HomePage implements OnInit {
     console.log('HomePage::ionViewDidLoad(): load ' + this.currentNodes.length + ' nodes.')
   }
 
+  ionViewDidEnter() {
+    this.morePagesAvailable = true;
+  }
+  
   /**
    * Navigate to the detail page for this item.
    */
@@ -48,5 +79,10 @@ export class HomePage implements OnInit {
     this.navCtrl.push('ItemDetailPage', {
       item: item
     });
+  }
+
+  openDetailNode(node: Node) {
+    console.log('HomePage::openDetailNode(): nid=' + node.nid + ' title=' + node.title);
+    this.navCtrl.push('ArticleDetailPage', { node: node });
   }
 }

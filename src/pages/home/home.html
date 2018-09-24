@@ -11,15 +11,30 @@
 </ion-header>
 
 <ion-content padding>
-  <li *ngFor="let node of currentNodes">{{node.name}}</li>
+  	<ion-card *ngFor="let node of currentNodes" >
+        <ion-card-content>
+          <ion-card-title [innerHTML]="node.title"></ion-card-title>
+          <p [innerHTML]="node.type"></p>
+        </ion-card-content>
+        <ion-row no-padding>
+           <ion-col>
+             <button ion-button clear small color="primary" icon-start>
+               <p class="date">{{node.changed*1000 | date: 'short'}} </p>
+             </button>
+           </ion-col>
+           <ion-col text-right>
+             <button ion-button small color="primary" (click)="openDetailNode(node)" icon-start>
+                全文
+             </button>
+           </ion-col>
+         </ion-row>
+      </ion-card>
 
-  <ion-list>
-
-
-    <ion-item-sliding *ngFor="let node of currentNodes">
-      <button ion-item (click)="openItem(node)">
-        <h2>{{node.title}}</h2>
-      </button>
-    </ion-item-sliding>
-  </ion-list>
+      <ion-infinite-scroll [enabled]="morePagesAvailable" (ionInfinite)="doInfinite($event)">
+          <ion-infinite-scroll-content
+          loadingSpinner="bubbles"
+          loadingText="加载更多内容 ...">
+          </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+        
 </ion-content>
