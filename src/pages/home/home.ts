@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { IonicPage, NavController, ModalController } from 'ionic-angular';
 import { Item } from '../../models/item';
-import { Items } from '../../providers';
 import { Node } from '../../models/node';
 import { DrupalApiProvider } from '../../providers/drupal-api/drupal-api';
+import { ArticleServiceProvider} from '../../providers/article-service/article-service'
 
 
 /**
@@ -24,43 +24,50 @@ export class HomePage implements OnInit {
 
   constructor(
     public navCtrl: NavController, 
-    public dp: DrupalApiProvider, 
-    public items: Items, 
+    public articleSrv: ArticleServiceProvider,
+    public dp: DrupalApiProvider,
     public modalCtrl: ModalController)
   {
     console.log('HomePage::constructor() data query...');
-    //this.currentItems = this.items.query();
-    //console.log('HomePage::constructor(): load ' + this.currentItems.length + ' items.')
   }
 
   ngOnInit(): void {
-    this.dp.get('node',null,null).then(
+    //this.dp.get('node',null,null).then(
+    //  nodes => this.currentNodes = nodes
+    //  );
+    this.articleSrv.get('article-excert', 'page=', 0).then(
       nodes => this.currentNodes = nodes
-      );
+    )
     console.log('HomePage::ngOnInit(): load ' + this.currentNodes.length + ' nodes.')
   }
 
   doInfinite(infiniteScroll) {
-    let page = (Math.ceil(this.currentNodes.length/20)) + 1;
-    let loading = true;
 
-    this.dp.get('node?page=' + page, null, null).then(
-      nodes => {
-          for(let node of nodes) {
-            if(!loading){
-              infiniteScroll.complete();
+    setTimeout(() => {
+      let page = (Math.ceil(this.currentNodes.length/20));
+      let loading = true;
+
+      console.log('HomePage::doInfinite(): page='+page)
+      this.dp.get('node?page=' + page, null, null).then(
+        nodes => {
+            console.log('load '+nodes.length+' nodes.');
+            for(let node of nodes) {
+              console.log(node['nid']);
+              setTimeout(() => {
+                  this.currentNodes.push(node);
+                }, 500);
+              loading = false;
             }
-            //console.log(node);
-            this.currentNodes.push(node);
-            loading = false;
+            console.log('Async operation has ended');
+            infiniteScroll.complete();
           }
-        }
-      ).catch(
-        err => {
-          this.morePagesAvailable = false;
-          console.error(err);
-        }
-      );
+        ).catch(
+          err => {
+            this.morePagesAvailable = false;
+            console.error(err);
+          }
+        )
+      }, 2000);
   }
 
   ionViewDidLoad() {
