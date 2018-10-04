@@ -10,16 +10,16 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content class="home">
   	<ion-card *ngFor="let node of currentNodes" >
         <ion-card-content>
           <ion-card-title [innerHTML]="node.title"></ion-card-title>
-          <p [innerHTML]="node.type"></p>
+          <p [innerHTML]="node.body"></p>
         </ion-card-content>
         <ion-row no-padding>
            <ion-col>
              <button ion-button clear small color="primary" icon-start>
-               <p class="date">{{node.changed*1000 | date: 'short'}} </p>
+               <p class="date">{{node.changed}} </p>
              </button>
            </ion-col>
            <ion-col text-right>

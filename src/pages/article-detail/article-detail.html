@@ -15,14 +15,14 @@
 </ion-header>
 
 
-<ion-content padding>
+<ion-content>
 
   <div class="article-detail" padding>
     <div *ngIf="article">
       <h3>{{article.title}}</h3>
-      <p>{{article.changed*100 | date}}</p>
-      <p>{{article.field_tags.und[0].name}}</p>
-      <p>{{article.field_author.und[0].value}}</p>
+      <p>{{article.changed*1000 | date }}</p>
+      <p>标签：{{article.field_tags.und[0].name}}</p>
+      <p>作者：{{article.field_author.und[0].value}}</p>
       <div [innerHTML]="body"></div>
     </div>
   </div>

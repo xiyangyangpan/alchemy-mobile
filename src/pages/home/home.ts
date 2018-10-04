@@ -32,31 +32,31 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit(): void {
-    //this.dp.get('node',null,null).then(
-    //  nodes => this.currentNodes = nodes
-    //  );
-    this.articleSrv.get('article-excert', 'page=', 0).then(
+    this.articleSrv.get('article', {page: 0}, 0)
+    .then(
       nodes => this.currentNodes = nodes
+    ).catch(
+      err => {
+        this.morePagesAvailable = false;
+        console.error(err);
+      }
     )
     console.log('HomePage::ngOnInit(): load ' + this.currentNodes.length + ' nodes.')
   }
 
   doInfinite(infiniteScroll) {
-
     setTimeout(() => {
-      let page = (Math.ceil(this.currentNodes.length/20));
-      let loading = true;
-
-      console.log('HomePage::doInfinite(): page='+page)
-      this.dp.get('node?page=' + page, null, null).then(
+      let page_no = (Math.ceil(this.currentNodes.length/10));
+      console.log('HomePage::doInfinite(): page='+page_no)
+      this.articleSrv.get('article', {page: page_no}, 0).then(
         nodes => {
             console.log('load '+nodes.length+' nodes.');
+            console.log(nodes);
             for(let node of nodes) {
-              console.log(node['nid']);
               setTimeout(() => {
                   this.currentNodes.push(node);
+                  console.log(node['nid']);
                 }, 500);
-              loading = false;
             }
             console.log('Async operation has ended');
             infiniteScroll.complete();
@@ -67,7 +67,7 @@ export class HomePage implements OnInit {
             console.error(err);
           }
         )
-      }, 2000);
+    }, 2000)
   }
 
   ionViewDidLoad() {

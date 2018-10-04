@@ -10,15 +10,14 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class ArticleServiceProvider {
   url: string = 'http://52.79.203.178/drupalgap';
-  myNodeList: Node[] = [];
-  myNode: Node = null;
+  //myNodeList: Node[] = [];
 
   constructor(public http: HttpClient) {
     console.log('Hello ArticleServiceProvider Provider');
   }
 
   get(endpoint: string, params?: any, reqOpts?: any): Promise<Node[]> {
-    console.log('DrupalApiProvider::get(): endpoint: ' + endpoint + ' params: ' + params);
+    console.log('ArticleServiceProvider::get()');
 
     if (!reqOpts) {
       reqOpts = {
@@ -34,21 +33,23 @@ export class ArticleServiceProvider {
       }
     }
 
-    console.log('DrupalApiProvider::get(): HTTP GET ' + this.url + '/' + endpoint);
-    console.log('reqOpts.params=' + reqOpts.params);
+    console.log('HTTP GET ' + this.url + '/' + endpoint + '?' + reqOpts.params);
+    //console.log('reqOpts = ' + reqOpts.params);
 
-    return this.http.get(this.url + '/' + endpoint)
+    return this.http.get(this.url + '/' + endpoint + '?', reqOpts)
                     .toPromise()
                     .then(
                       data => {
                           console.log(data['nodes']);
                           let nodes = data['nodes'];
                           let count = (<Array<string>>nodes).length;
+                          let myNodeList = new Array();
                           for (var i = 0; i < count; i++) {
                             //console.log(nodes[i].node)
-                            this.myNodeList.push(nodes[i].node);
+                            myNodeList.push(nodes[i].node);
                           }
-                          return this.myNodeList;
+                          console.log('HTTP return ' + myNodeList.length + ' articles.');
+                          return myNodeList;
                         }
                     )
                     .catch(this.handleError)
